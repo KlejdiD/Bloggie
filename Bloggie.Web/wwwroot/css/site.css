@@ -24,3 +24,15 @@ body {
 .blog-details-content img{
     max-width: 100%;
 }
+
+.content-container {
+    max-width: 100%;
+    overflow-wrap: break-word; /* prevent long words from overflowing */
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+    .content-container img {
+        max-width: 100%; /* responsive images */
+        height: auto;
+    }

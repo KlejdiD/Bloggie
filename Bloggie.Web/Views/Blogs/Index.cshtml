@@ -6,7 +6,7 @@
 <div class="container my-5">
     <div class="row justify-content-center">
 
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-6 ">
             @if (Model != null)
             {
                 <h1 class="mb-3">@Model.Heading</h1>
@@ -29,7 +29,7 @@
 
                 <img src="@Model.FeaturedImageUrl" class="d-block img-fluid mb-3"/>
 
-                <div class="mb-3">
+                <div class="mb-3 content-container">
                     @Html.Raw(Model.Content)
                 </div>
             }
