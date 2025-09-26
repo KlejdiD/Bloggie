@@ -15,7 +15,7 @@ namespace Bloggie.Web.Repositories
         public async Task<BlogPost> AddAsync(BlogPost blogPost)
         {
             await bloggieDbContext.AddAsync(blogPost);
-            await bloggieDbContext.SaveChangesAsync();  
+            await bloggieDbContext.SaveChangesAsync();
             return blogPost;
         }
 
@@ -23,7 +23,7 @@ namespace Bloggie.Web.Repositories
         {
             var exisitingBlog = await bloggieDbContext.BlogPosts.FindAsync(id);
 
-            if(exisitingBlog != null)
+            if (exisitingBlog != null)
             {
                 bloggieDbContext.BlogPosts.Remove(exisitingBlog);
                 await bloggieDbContext.SaveChangesAsync();
@@ -35,20 +35,20 @@ namespace Bloggie.Web.Repositories
         public async Task<IEnumerable<BlogPost>> GetAllAsync()
         {
             return await bloggieDbContext.BlogPosts.Include(x => x.Tags).ToListAsync();
-            
+
         }
 
         public async Task<BlogPost?> GetAsync(Guid id)
         {
-            return await bloggieDbContext.BlogPosts.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == id); 
+            return await bloggieDbContext.BlogPosts.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<BlogPost?> UpdateAsync(BlogPost blogPost)
         {
-            var existingBlog = await bloggieDbContext.BlogPosts.Include(x=>x.Tags).
+            var existingBlog = await bloggieDbContext.BlogPosts.Include(x => x.Tags).
                 FirstOrDefaultAsync(x => x.Id == blogPost.Id);
 
-            if(existingBlog != null)
+            if (existingBlog != null)
             {
                 existingBlog.Heading = blogPost.Heading;
                 existingBlog.PageTitle = blogPost.PageTitle;
@@ -63,8 +63,14 @@ namespace Bloggie.Web.Repositories
                 await bloggieDbContext.SaveChangesAsync();
                 return existingBlog;
             }
-                return null;
-            
+            return null;
+
+        }
+
+        public async Task<BlogPost?> GetByUrlHandleAsync(string urlHandle)
+        {
+            return await bloggieDbContext.BlogPosts.Include(x => x.Tags).
+                FirstOrDefaultAsync(x => x.UrlHandle == urlHandle);
         }
     }
 }

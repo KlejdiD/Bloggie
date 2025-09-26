@@ -1,6 +1,7 @@
 namespace Bloggie.Web.Data;
 
 using Bloggie.Web.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 public class Program
@@ -17,9 +18,30 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("BloggieDbConnectionString"));
         });
 
+        builder.Services.AddDbContext<AuthDbContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration.GetConnectionString("BloggieAuthDbConnectionString"));
+        });
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<AuthDbContext>();
+
+        builder.Services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequiredUniqueChars = 1;
+        });
+
+
+
         builder.Services.AddScoped<ITagRepository, TagRepository>();
         builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
         builder.Services.AddScoped<IImageRepository, CloudinaryImageRepository>();
+        builder.Services.AddScoped<IBlogPostLikeRepository, BlogPostLikeRepository>();
 
         var app = builder.Build();
 
@@ -36,6 +58,7 @@ public class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
