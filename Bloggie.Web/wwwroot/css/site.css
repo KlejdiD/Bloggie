@@ -32,7 +32,7 @@ body {
     word-break: break-word;
 }
 
-    .content-container img {
-        max-width: 100%; /* responsive images */
-        height: auto;
-    }
+.content-container img {
+    max-width: 100%; /* responsive images */
+    height: auto;
+}

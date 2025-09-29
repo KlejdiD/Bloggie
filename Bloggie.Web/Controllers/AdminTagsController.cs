@@ -18,7 +18,7 @@ namespace Bloggie.Web.Controllers
             this.tagRepository = tagRepository;
         }
 
-        
+
         [HttpGet]
         public IActionResult Add()
         {
@@ -27,9 +27,14 @@ namespace Bloggie.Web.Controllers
 
         [HttpPost]
         [ActionName("Add")]
-
         public async Task<IActionResult> SubmitTag(AddTagRequest addTagRequest)
         {
+            ValidateAddTagRequest(addTagRequest);
+            if (ModelState.IsValid == false)
+            {
+                return View();
+            }
+
             var tag = new Tag
             {
                 Name = addTagRequest.Name,
@@ -44,9 +49,30 @@ namespace Bloggie.Web.Controllers
 
         [HttpGet]
         [ActionName("List")]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string? searchQuery, string? sortBy, string? sortDirection, int pageSize = 3, int pageNumber = 1)
         {
-            var tags = await tagRepository.GetAllAsync();
+
+            var totalRecords = await tagRepository.CountAsync();
+            var totalPages = Math.Ceiling((decimal)totalRecords / pageSize);
+
+            if(pageNumber > totalPages)
+            {
+                pageNumber--;
+            }
+
+            if (pageNumber < 1)
+            {
+                pageNumber++;
+            }
+
+            ViewBag.TotalPages = totalPages;
+            ViewBag.SearchQuery = searchQuery;
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortDirection = sortDirection;
+            ViewBag.PageSize = pageSize;
+            ViewBag.PageNumber = pageNumber;
+
+            var tags = await tagRepository.GetAllAsync(searchQuery, sortBy, sortDirection, pageNumber, pageSize);
             return View(tags);
         }
 
@@ -56,8 +82,8 @@ namespace Bloggie.Web.Controllers
         {
             //var tag = bloggieDbContext.Tags.Find(id);
 
-            var tag = await tagRepository.GetAsync(id);  
-            
+            var tag = await tagRepository.GetAsync(id);
+
             if (tag != null)
             {
                 var editTagRequest = new EditTagRequest
@@ -100,8 +126,8 @@ namespace Bloggie.Web.Controllers
         public async Task<IActionResult> Delete(EditTagRequest editTagRequest)
         {
             var deletedTag = await tagRepository.DeleteAsync(editTagRequest.Id);
-            
-            if(deletedTag != null)
+
+            if (deletedTag != null)
             {
                 //Success notification
                 return RedirectToAction("List");
@@ -109,7 +135,18 @@ namespace Bloggie.Web.Controllers
             else
             {
                 //Error notification
-                return RedirectToAction("Edit", new { id = editTagRequest.Id } ); 
+                return RedirectToAction("Edit", new { id = editTagRequest.Id });
+            }
+        }
+
+        private void ValidateAddTagRequest(AddTagRequest addTagRequest)
+        {
+            if (addTagRequest?.Name is not null && addTagRequest?.DisplayName is not null)
+            {
+                if (addTagRequest.Name == addTagRequest.DisplayName)
+                {
+                    ModelState.AddModelError("DisplayName", "Name cannot be the same as Display Name");
+                }
             }
         }
     }
